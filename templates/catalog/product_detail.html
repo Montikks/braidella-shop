@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} – Braidella{% endblock %}
+{% block content %}
+  <h2>{{ product.name }}</h2>
+  <p>Kategorie: <a href="{% url 'catalog:category' product.category.slug %}">{{ product.category.name }}</a></p>
+  <p>Cena: <strong>{{ product.price }} Kč</strong></p>
+  <p>{{ product.description|linebreaks }}</p>
+  <p><a href="{% url 'catalog:category' product.category.slug %}">← Zpět do kategorie</a></p>
+{% endblock %}
