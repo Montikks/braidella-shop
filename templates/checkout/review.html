@@ -1,29 +1,30 @@
 {% extends "base.html" %}
 {% block title %}Pokladna – Rekapitulace{% endblock %}
+
 {% block content %}
   <h2>Pokladna – Rekapitulace</h2>
 
   <h3>Košík</h3>
   <table border="0" cellpadding="6" cellspacing="0" style="border-collapse: collapse; min-width: 360px;">
-  <thead>
-    <tr>
-      <th align="left">Produkt</th>
-      <th align="right">Ks</th>
-      <th align="right">Cena</th>
-      <th align="right">Mezisoučet</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in items %}
+    <thead>
       <tr>
-        <td>{{ item.product.name }}</td>
-        <td align="right">{{ item.qty }}</td>
-        <td align="right">{{ item.price }} Kč</td>
-        <td align="right"><strong>{{ item.subtotal }} Kč</strong></td>
+        <th align="left">Produkt</th>
+        <th align="right">Ks</th>
+        <th align="right">Cena</th>
+        <th align="right">Mezisoučet</th>
       </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td align="right">{{ item.qty }}</td>
+          <td align="right">{{ item.price }} Kč</td>
+          <td align="right"><strong>{{ item.subtotal }} Kč</strong></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
   <p style="margin-top:8px;"><strong>Celkem: {{ total }} Kč</strong></p>
 
@@ -31,22 +32,29 @@
   {% if addr %}
     {% if addr.delivery_method == "balikovna" %}
       <p><strong>Balíkovna</strong><br>
-        {{ addr.first_name }} {{ addr.last_name }}<br>
-        {{ addr.balikovna_id }} ({{ addr.balikovna_code }})<br>
-        Tel: {{ addr.phone }} · E-mail: {{ addr.email }}
+         {{ addr.first_name }} {{ addr.last_name }}<br>
+         {{ addr.balikovna_id }} ({{ addr.balikovna_code }})<br>
+         Tel: {{ addr.phone }} · E-mail: {{ addr.email }}
       </p>
     {% else %}
       <p><strong>Doručení na adresu</strong><br>
-        {{ addr.first_name }} {{ addr.last_name }}<br>
-        {{ addr.street }}<br>
-        {{ addr.zip_code }} {{ addr.city }}<br>
-        Tel: {{ addr.phone }} · E-mail: {{ addr.email }}
+         {{ addr.first_name }} {{ addr.last_name }}<br>
+         {{ addr.street }}<br>
+         {{ addr.zip_code }} {{ addr.city }}<br>
+         Tel: {{ addr.phone }} · E-mail: {{ addr.email }}
       </p>
     {% endif %}
   {% else %}
     <p><em>Adresa zatím není vyplněná.</em></p>
   {% endif %}
 
+  <!-- ✦✦ GoPay tlačítko ✦✦ -->
+  <form action="{% url 'payments:create' order.id %}" method="post" style="margin: 12px 0;">
+    {% csrf_token %}
+    <button type="submit"><strong>Zaplatit kartou (GoPay)</strong></button>
+  </form>
+
+  <!-- Původní offline odeslání jako záloha -->
   <form method="post" action="{% url 'checkout:place' %}" style="margin: 12px 0;">
     {% csrf_token %}
     <button type="submit"><strong>Odeslat objednávku</strong></button>

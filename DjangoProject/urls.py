@@ -9,6 +9,7 @@ urlpatterns = [
     path("", include(("catalog.urls", "catalog"), namespace="catalog")),
     path("cart/", include(("cart.urls", "cart"), namespace="cart")),
     path("checkout/", include(("checkout.urls", "checkout"), namespace="checkout")),
+    path("pay/", include(("payments.urls", "payments"), namespace="payments")),
 ]
 
 if settings.DEBUG:

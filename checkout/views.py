@@ -4,6 +4,8 @@ from catalog.models import Product
 from .forms import AddressForm
 from orders.models import Order, OrderItem
 from orders.email import send_order_confirmation
+from uuid import uuid4
+from django.shortcuts import render, redirect
 
 CART_SESSION_KEY = "cart"
 CHECKOUT_SESSION_KEY = "checkout_address"
@@ -75,7 +77,42 @@ def review(request):
         messages.info(request, "Košík je prázdný.")
         return redirect("cart:detail")
 
-    return render(request, "checkout/review.html", {"items": items, "total": total, "addr": addr})
+    # --- Vytvoříme (nebo znovu použijeme) objednávku ve stavu 'new' ----
+    order_id = request.session.get("order_id")
+    if order_id:
+        order = Order.objects.filter(pk=order_id, status="new").first()
+    else:
+        order = None
+
+    if order is None:
+        order = Order.objects.create(
+            first_name=addr.get("first_name", ""),
+            last_name=addr.get("last_name", ""),
+            email=addr.get("email", ""),
+            phone=addr.get("phone", ""),
+            delivery_method=addr.get("delivery_method", "address"),
+            street=addr.get("street", ""),
+            city=addr.get("city", ""),
+            zip_code=addr.get("zip_code", ""),
+            balikovna_id=addr.get("balikovna_id", ""),
+            balikovna_code=addr.get("balikovna_code", ""),
+            total=total,
+            status="new",
+        )
+        # uložíme ID do session, aby zůstalo stejné při opakovaném vstupu
+        request.session["order_id"] = order.id
+        request.session.modified = True
+
+    return render(
+        request,
+        "checkout/review.html",
+        {
+            "items": items,
+            "total": total,
+            "addr": addr,
+            "order": order,     # ← teď už existuje
+        },
+    )
 
 
 def balikovna_picker(request):
