@@ -9,8 +9,7 @@ CHECKOUT_SESSION_KEY = "checkout_address"
 
 def address(request):
     initial = request.session.get(CHECKOUT_SESSION_KEY, {})
-    initial.setdefault("delivery_method", "address")  # výchozí volba
-
+    initial.setdefault("delivery_method", "address")
     if request.method == "POST":
         form = AddressForm(request.POST)
         if form.is_valid():
@@ -19,7 +18,6 @@ def address(request):
             return redirect("checkout:review")
     else:
         form = AddressForm(initial=initial)
-
     return render(request, "checkout/address.html", {"form": form})
 
 
@@ -40,3 +38,8 @@ def review(request):
 
     addr = request.session.get(CHECKOUT_SESSION_KEY)
     return render(request, "checkout/review.html", {"items": items, "total": total, "addr": addr})
+
+
+def balikovna_picker(request):
+    # stránka s iframem mapy Balíkovny – poslouchá postMessage a zavře se
+    return render(request, "checkout/balikovna_picker.html")

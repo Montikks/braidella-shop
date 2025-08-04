@@ -32,7 +32,11 @@
       <fieldset>
         <legend>Balíkovna</legend>
         <p>{{ form.balikovna_id.label_tag }} {{ form.balikovna_id }} {{ form.balikovna_id.errors }}</p>
-        <p><small>V dalším kroku přidáme mapu pro výběr výdejního místa.</small></p>
+        {{ form.balikovna_code.as_hidden }}  {# skryté pole pro skutečné ID #}
+        <p>
+          <button type="button" id="open-balikovna">Vybrat na mapě</button>
+        </p>
+        <p><small>Po výběru se pole vyplní a formulář se sám odešle.</small></p>
       </fieldset>
     </div>
 
@@ -51,7 +55,43 @@
       else { addr.style.display = ''; bal.style.display = 'none'; }
     }
     document.querySelectorAll('input[name="delivery_method"]').forEach(function(r){ r.addEventListener('change', toggleSections); });
-    // inicializace po načtení:
     toggleSections();
+
+    // Otevřít výběr Balíkovny
+    document.getElementById('open-balikovna')?.addEventListener('click', function(){
+      window.open("{% url 'checkout:balikovna_picker' %}", "balikovnaPicker", "width=960,height=800");
+    });
+
+    // Převzít vybranou pobočku z pickeru
+    window.addEventListener("message", function(e){
+      if (e.origin !== window.location.origin) return;            // přijímáme jen naši child stránku
+      if (!e.data || e.data.source !== "balikovna-picker") return;
+
+      var d = e.data.data || {};
+      var p = d.point || {};
+      var id = d.id || p.id || "";
+      var name = p.name || "";
+      var zip = p.zip || "";
+      var address = p.address || "";
+
+      // Sestav krátký popis (vejde se do 255 znaků)
+      var label = "";
+      if (name) { label += name; }
+      if (zip)  { label += (label ? " " : "") + "(" + zip + ")"; }
+      if (address) { label += (label ? ", " : "") + address; }
+      if (!label) { label = id || "Vybraná Balíkovna"; }
+
+      // Naplň formulář
+      var fieldText = document.getElementById("id_balikovna_id");
+      var fieldCode = document.getElementById("id_balikovna_code");
+      if (fieldText) fieldText.value = label.slice(0, 255);
+      if (fieldCode) fieldCode.value = id;
+
+      // přepnout dopravu na Balíkovnu a odeslat
+      var radio = document.querySelector('input[name="delivery_method"][value="balikovna"]');
+      if (radio) radio.checked = true;
+      toggleSections();
+      document.getElementById("addr-form").submit();
+    });
   </script>
 {% endblock %}

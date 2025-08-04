@@ -23,17 +23,22 @@ class AddressForm(forms.Form):
         widget=forms.RadioSelect
     )
 
-    # adresa – budou povinné jen když je zvolena „address“
+    # adresa
     street = forms.CharField(label="Ulice a č.p.", max_length=120, required=False)
     city = forms.CharField(label="Město", max_length=80, required=False)
     zip_code = forms.CharField(label="PSČ", max_length=10, required=False, help_text="Např. 110 00")
 
-    # Balíkovna – povinné jen když je zvolena „balikovna“
-    balikovna_id = forms.CharField(
+    # Balíkovna
+    balikovna_id = forms.CharField(  # čitelné shrnutí (název, ZIP, adresa)
         label="Výdejní místo Balíkovny (ID/adresa)",
-        max_length=160,
+        max_length=255,  # zvětšeno, ale stejně budeme skládat krátce
         required=False,
-        help_text="Vyberete v dalším kroku z mapy, nebo zadejte ručně."
+        help_text="Vyberete na mapě (nebo zadejte stručně ručně)."
+    )
+    balikovna_code = forms.CharField(  # skutečné ID pobočky, např. B39207
+        label="Kód Balíkovny",
+        max_length=32,
+        required=False
     )
 
     def clean_zip_code(self):
@@ -54,14 +59,13 @@ class AddressForm(forms.Form):
         cleaned = super().clean()
         method = cleaned.get("delivery_method")
         if method == "address":
-            # vyžaduj adresní pole
             for f in ("street", "city", "zip_code"):
                 if not (cleaned.get(f) or "").strip():
                     self.add_error(f, "Toto pole je povinné pro doručení na adresu.")
-            # Balíkovnu vynuluj
             cleaned["balikovna_id"] = ""
+            cleaned["balikovna_code"] = ""
         elif method == "balikovna":
-            if not (cleaned.get("balikovna_id") or "").strip():
-                self.add_error("balikovna_id", "Vyberte nebo zadejte Balíkovnu.")
-            # Adresu klidně ponecháme prázdnou
+            # u Balíkovny vyžadujeme alespoň ID (code)
+            if not (cleaned.get("balikovna_code") or "").strip():
+                self.add_error("balikovna_id", "Vyberte Balíkovnu tlačítkem „Vybrat na mapě“.")  # navede uživatele
         return cleaned
