@@ -47,6 +47,10 @@
 
     </table>
     <p style="margin-top: 8px;"><strong>Celkem: {{ total }} Kč</strong></p>
+      <p style="margin-top: 12px;">
+  <a href="{% url 'checkout:address' %}"><strong>Pokračovat k pokladně →</strong></a>
+</p>
+
     <p><a href="/">Pokračovat v nákupu</a></p>
   {% else %}
     <p>Košík je prázdný.</p>

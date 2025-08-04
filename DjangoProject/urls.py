@@ -8,6 +8,7 @@ urlpatterns = [
     path("", include("pages.urls")),
     path("", include(("catalog.urls", "catalog"), namespace="catalog")),
     path("cart/", include(("cart.urls", "cart"), namespace="cart")),  # ← přidáno
+    path("checkout/", include(("checkout.urls", "checkout"), namespace="checkout")),
 ]
 
 if settings.DEBUG:
