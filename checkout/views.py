@@ -4,6 +4,7 @@ from django.urls import reverse
 from catalog.models import Variant
 from .forms import AddressForm
 from orders.models import Order, OrderItem  # ← přidáno
+from orders.email import send_order_confirmation
 
 CART_SESSION_KEY = "cart"
 CHECKOUT_SESSION_KEY = "checkout_address"
@@ -115,6 +116,12 @@ def place_order(request):
         if v.stock is not None:
             v.stock = max(0, v.stock - qty)
             v.save(update_fields=["stock"])
+
+    # odeslat potvrzovací e-mail (neblokující)
+    try:
+        send_order_confirmation(order)
+    except Exception as e:
+        print("Order confirmation email failed:", e)
 
     # vyprázdni košík
     try:
