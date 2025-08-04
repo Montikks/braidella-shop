@@ -1,5 +1,6 @@
 from django.db import models
-from catalog.models import Variant
+from catalog.models import Variant, Product  # ← přidán Product
+
 
 class Order(models.Model):
     # zákazník
@@ -19,8 +20,9 @@ class Order(models.Model):
     city = models.CharField(max_length=80, blank=True)
     zip_code = models.CharField(max_length=10, blank=True)
 
-    balikovna_id = models.CharField(max_length=255, blank=True)   # textový popis (název, zip, adresa)
-    balikovna_code = models.CharField(max_length=32, blank=True)  # kód pobočky (např. B39207)
+    # Balíkovna – textové shrnutí a kód pobočky
+    balikovna_id = models.CharField(max_length=255, blank=True)
+    balikovna_code = models.CharField(max_length=32, blank=True)
 
     # ceny
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -35,6 +37,16 @@ class Order(models.Model):
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
 
+    # přepravce + sledování
+    CARRIER_CHOICES = [
+        ("czp_balikovna", "Česká pošta – Balíkovna"),
+        ("czp", "Česká pošta (ostatní)"),
+        ("other", "Jiný dopravce"),
+    ]
+    carrier = models.CharField(max_length=32, choices=CARRIER_CHOICES, default="czp_balikovna")
+    tracking_code = models.CharField(max_length=64, blank=True)
+    shipped_at = models.DateTimeField(null=True, blank=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -44,11 +56,28 @@ class Order(models.Model):
     def __str__(self):
         return f"Objednávka #{self.pk} – {self.last_name}"
 
+    def tracking_url(self):
+        code = (self.tracking_code or "").strip()
+        if not code:
+            return ""
+        if self.carrier == "czp_balikovna":
+            return f"https://www.balikovna.cz/cs/sledovat-balik/-/balik/{code}"
+        if self.carrier == "czp":
+            return f"https://www.postaonline.cz/cz/trackandtrace?parcelNumbers={code}"
+        return ""
+
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    variant = models.ForeignKey(Variant, on_delete=models.PROTECT, related_name="order_items")
-    name_snapshot = models.CharField(max_length=200)  # název pro případ změn v katalogu
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # cena v čase objednávky
+
+    # NOVĚ: dovolíme dvě cesty – přes produkt NEBO přes variantu (přechodná fáze)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items",
+                                null=True, blank=True)
+    variant = models.ForeignKey(Variant, on_delete=models.PROTECT, related_name="order_items",
+                                null=True, blank=True)  # bylo povinné, teď volitelné
+
+    name_snapshot = models.CharField(max_length=200)  # text do faktury/e-mailu
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     qty = models.PositiveIntegerField(default=1)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)
 
