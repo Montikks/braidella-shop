@@ -18,55 +18,17 @@
   </p>
 
   <p>
-    Základní cena: <strong>{{ product.price }} Kč</strong>
-    <br><small>(Varianta může mít vlastní cenu.)</small>
+    Cena: <strong>{{ product.price }} Kč</strong>
   </p>
 
-  <h3>Varianty</h3>
-  {% if product.variants.all %}
-    <table border="0" cellpadding="6" cellspacing="0" style="border-collapse: collapse; min-width: 320px;">
-      <thead>
-        <tr>
-          <th align="left">Barva</th>
-          <th align="left">Délka</th>
-          <th align="left">Cena</th>
-          <th align="left">Skladem</th>
-          <th align="left">Akce</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for v in product.variants.all %}
-          <tr>
-            <td>
-              {% if v.color.hex_code %}
-                <span title="{{ v.color.name }}" style="display:inline-block; width:14px; height:14px; border:1px solid #ccc; vertical-align:middle; background: {{ v.color.hex_code }};"></span>
-              {% endif %}
-              {{ v.color.name }}
-            </td>
-            <td>{{ v.length_cm }} cm</td>
-            <td>{% if v.price %}{{ v.price }}{% else %}{{ product.price }}{% endif %} Kč</td>
-            <td>{% if v.active and v.stock > 0 %}Dostupné ({{ v.stock }} ks){% else %}Nedostupné{% endif %}</td>
-            <td>
-              {% if v.active and v.stock > 0 %}
-                <form action="{% url 'cart:add' %}" method="post" style="display:inline">
-                  {% csrf_token %}
-                  <input type="hidden" name="variant_id" value="{{ v.id }}">
-                  <input type="hidden" name="qty" value="1">
-                  <button type="submit">Přidat do košíku</button>
-                </form>
-              {% else %}
-                —
-              {% endif %}
-            </td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="5">Žádné varianty.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>Žádné varianty nejsou k dispozici.</p>
-  {% endif %}
+  <form action="{% url 'cart:add' %}" method="post" style="margin-top: 8px">
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <label>Množství:
+      <input type="number" name="qty" value="1" min="1" style="width:80px">
+    </label>
+    <button type="submit">Přidat do košíku</button>
+  </form>
 
   <p style="margin-top: 12px;">
     <a href="{% url 'catalog:category' product.category.slug %}">← Zpět do kategorie</a>

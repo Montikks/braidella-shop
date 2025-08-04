@@ -7,5 +7,5 @@ urlpatterns = [
     path("", detail, name="detail"),
     path("add/", add, name="add"),
     path("update/", update, name="update"),
-    path("remove/<int:variant_id>/", remove, name="remove"),
+    path("remove/<str:key>/", remove, name="remove"),  # key je např. "p:34" nebo "v:12"
 ]

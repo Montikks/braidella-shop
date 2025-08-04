@@ -17,23 +17,30 @@
       <tbody>
   {% for item in items %}
     <tr>
-      <td>{{ item.variant.product.name }}</td>
-      <td>{{ item.variant.color.name }} – {{ item.variant.length_cm }} cm</td>
+      <td>
+        {% if item.kind == "variant" %}
+          {{ item.product.name }}
+        {% else %}
+          {{ item.product.name }}
+        {% endif %}
+      </td>
+      <td>
+        {% if item.kind == "variant" %}
+          {{ item.variant.color.name }} – {{ item.variant.length_cm }} cm
+        {% else %}
+          —
+        {% endif %}
+      </td>
       <td align="right">
         <form action="{% url 'cart:update' %}" method="post" style="display:inline">
           {% csrf_token %}
-          <input type="hidden" name="variant_id" value="{{ item.variant.id }}">
-          <input
-            type="number"
-            name="qty"
-            value="{{ item.qty }}"
-            min="0"
-            {% if item.variant.stock %}max="{{ item.variant.stock }}"{% endif %}
-            style="width:60px"
-            onchange="this.form.submit()"
-          >
+          <input type="hidden" name="key" value="{{ item.key }}">
+          <input type="number" name="qty" value="{{ item.qty }}" min="0"
+                 {% if item.kind == "variant" and item.variant.stock %}max="{{ item.variant.stock }}"{% endif %}
+                 {% if item.kind == "product" and item.product.stock %}max="{{ item.product.stock }}"{% endif %}
+                 style="width:60px" onchange="this.form.submit()">
         </form>
-        <form action="{% url 'cart:remove' item.variant.id %}" method="post" style="display:inline; margin-left:6px">
+        <form action="{% url 'cart:remove' item.key %}" method="post" style="display:inline; margin-left:6px">
           {% csrf_token %}
           <button type="submit">Odebrat</button>
         </form>
@@ -43,6 +50,7 @@
     </tr>
   {% endfor %}
 </tbody>
+
 
 
     </table>
