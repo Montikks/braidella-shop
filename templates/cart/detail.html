@@ -23,10 +23,15 @@
         <form action="{% url 'cart:update' %}" method="post" style="display:inline">
           {% csrf_token %}
           <input type="hidden" name="variant_id" value="{{ item.variant.id }}">
-          <input type="number" name="qty" value="{{ item.qty }}" min="0"
-                 {% if item.variant.stock %}max="{{ item.variant.stock }}"{% endif %}
-                 style="width:60px">
-          <button type="submit">Upravit</button>
+          <input
+            type="number"
+            name="qty"
+            value="{{ item.qty }}"
+            min="0"
+            {% if item.variant.stock %}max="{{ item.variant.stock }}"{% endif %}
+            style="width:60px"
+            onchange="this.form.submit()"
+          >
         </form>
         <form action="{% url 'cart:remove' item.variant.id %}" method="post" style="display:inline; margin-left:6px">
           {% csrf_token %}
@@ -38,6 +43,7 @@
     </tr>
   {% endfor %}
 </tbody>
+
 
     </table>
     <p style="margin-top: 8px;"><strong>Celkem: {{ total }} Kč</strong></p>
