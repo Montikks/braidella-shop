@@ -7,6 +7,9 @@
 </head>
 <body>
   <header>
+      {% if messages %}
+  <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+{% endif %}
   <h1><a href="/">Braidella</a></h1>
   <nav>
     <a href="/">Domů</a> |

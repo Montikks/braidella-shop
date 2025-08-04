@@ -15,16 +15,30 @@
         </tr>
       </thead>
       <tbody>
-        {% for item in items %}
-          <tr>
-            <td>{{ item.variant.product.name }}</td>
-            <td>{{ item.variant.color.name }} – {{ item.variant.length_cm }} cm</td>
-            <td align="right">{{ item.qty }}</td>
-            <td align="right">{{ item.price }} Kč</td>
-            <td align="right"><strong>{{ item.subtotal }} Kč</strong></td>
-          </tr>
-        {% endfor %}
-      </tbody>
+  {% for item in items %}
+    <tr>
+      <td>{{ item.variant.product.name }}</td>
+      <td>{{ item.variant.color.name }} – {{ item.variant.length_cm }} cm</td>
+      <td align="right">
+        <form action="{% url 'cart:update' %}" method="post" style="display:inline">
+          {% csrf_token %}
+          <input type="hidden" name="variant_id" value="{{ item.variant.id }}">
+          <input type="number" name="qty" value="{{ item.qty }}" min="0"
+                 {% if item.variant.stock %}max="{{ item.variant.stock }}"{% endif %}
+                 style="width:60px">
+          <button type="submit">Upravit</button>
+        </form>
+        <form action="{% url 'cart:remove' item.variant.id %}" method="post" style="display:inline; margin-left:6px">
+          {% csrf_token %}
+          <button type="submit">Odebrat</button>
+        </form>
+      </td>
+      <td align="right">{{ item.price }} Kč</td>
+      <td align="right"><strong>{{ item.subtotal }} Kč</strong></td>
+    </tr>
+  {% endfor %}
+</tbody>
+
     </table>
     <p style="margin-top: 8px;"><strong>Celkem: {{ total }} Kč</strong></p>
     <p><a href="/">Pokračovat v nákupu</a></p>
