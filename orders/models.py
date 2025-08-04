@@ -1,5 +1,5 @@
 from django.db import models
-from catalog.models import Variant, Product  # ← přidán Product
+from catalog.models import Product
 
 
 class Order(models.Model):
@@ -20,14 +20,12 @@ class Order(models.Model):
     city = models.CharField(max_length=80, blank=True)
     zip_code = models.CharField(max_length=10, blank=True)
 
-    # Balíkovna – textové shrnutí a kód pobočky
+    # Balíkovna
     balikovna_id = models.CharField(max_length=255, blank=True)
     balikovna_code = models.CharField(max_length=32, blank=True)
 
-    # ceny
+    # ceny a stav
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-
-    # stav
     STATUS_CHOICES = [
         ("new", "Nová"),
         ("paid", "Zaplacená"),
@@ -37,7 +35,7 @@ class Order(models.Model):
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
 
-    # přepravce + sledování
+    # dopravce / tracking (ponecháme)
     CARRIER_CHOICES = [
         ("czp_balikovna", "Česká pošta – Balíkovna"),
         ("czp", "Česká pošta (ostatní)"),
@@ -69,14 +67,9 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")
 
-    # NOVĚ: dovolíme dvě cesty – přes produkt NEBO přes variantu (přechodná fáze)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items",
-                                null=True, blank=True)
-    variant = models.ForeignKey(Variant, on_delete=models.PROTECT, related_name="order_items",
-                                null=True, blank=True)  # bylo povinné, teď volitelné
-
-    name_snapshot = models.CharField(max_length=200)  # text do faktury/e-mailu
+    name_snapshot = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     qty = models.PositiveIntegerField(default=1)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)

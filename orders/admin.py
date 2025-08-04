@@ -7,8 +7,8 @@ from .email import send_tracking_email
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    readonly_fields = ("product", "variant", "name_snapshot", "price", "qty", "subtotal")
-    fields = ("product", "variant", "name_snapshot", "price", "qty", "subtotal")
+    readonly_fields = ("product", "name_snapshot", "price", "qty", "subtotal")
+    fields = ("product", "name_snapshot", "price", "qty", "subtotal")
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

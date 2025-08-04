@@ -5,27 +5,26 @@
 
   <h3>Košík</h3>
   <table border="0" cellpadding="6" cellspacing="0" style="border-collapse: collapse; min-width: 360px;">
-    <thead>
+  <thead>
+    <tr>
+      <th align="left">Produkt</th>
+      <th align="right">Ks</th>
+      <th align="right">Cena</th>
+      <th align="right">Mezisoučet</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
       <tr>
-        <th align="left">Produkt</th>
-        <th align="left">Varianta</th>
-        <th align="right">Ks</th>
-        <th align="right">Cena</th>
-        <th align="right">Mezisoučet</th>
+        <td>{{ item.product.name }}</td>
+        <td align="right">{{ item.qty }}</td>
+        <td align="right">{{ item.price }} Kč</td>
+        <td align="right"><strong>{{ item.subtotal }} Kč</strong></td>
       </tr>
-    </thead>
-    <tbody>
-      {% for item in items %}
-        <tr>
-          <td>{{ item.variant.product.name }}</td>
-          <td>{{ item.variant.color.name }} – {{ item.variant.length_cm }} cm</td>
-          <td align="right">{{ item.qty }}</td>
-          <td align="right">{{ item.price }} Kč</td>
-          <td align="right"><strong>{{ item.subtotal }} Kč</strong></td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    {% endfor %}
+  </tbody>
+</table>
+
   <p style="margin-top:8px;"><strong>Celkem: {{ total }} Kč</strong></p>
 
   <h3>Údaje o doručení</h3>
@@ -33,7 +32,7 @@
     {% if addr.delivery_method == "balikovna" %}
       <p><strong>Balíkovna</strong><br>
         {{ addr.first_name }} {{ addr.last_name }}<br>
-        {{ addr.balikovna_id }}<br>
+        {{ addr.balikovna_id }} ({{ addr.balikovna_code }})<br>
         Tel: {{ addr.phone }} · E-mail: {{ addr.email }}
       </p>
     {% else %}
@@ -48,14 +47,10 @@
     <p><em>Adresa zatím není vyplněná.</em></p>
   {% endif %}
 
-   <form method="post" action="{% url 'checkout:place' %}" style="margin: 12px 0;">
-  {% csrf_token %}
-  <button type="submit"><strong>Odeslat objednávku</strong></button>
-</form>
+  <form method="post" action="{% url 'checkout:place' %}" style="margin: 12px 0;">
+    {% csrf_token %}
+    <button type="submit"><strong>Odeslat objednávku</strong></button>
+  </form>
 
-  <p>
-    <a href="{% url 'checkout:address' %}">← Změnit adresu</a>
-  </p>
-
-  <p><strong>(Další krok – vytvoření objednávky a platba – přidáme brzy.)</strong></p>
+  <p><a href="{% url 'checkout:address' %}">← Změnit adresu</a></p>
 {% endblock %}
