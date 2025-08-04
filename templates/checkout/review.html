@@ -48,6 +48,11 @@
     <p><em>Adresa zatím není vyplněná.</em></p>
   {% endif %}
 
+   <form method="post" action="{% url 'checkout:place' %}" style="margin: 12px 0;">
+  {% csrf_token %}
+  <button type="submit"><strong>Odeslat objednávku</strong></button>
+</form>
+
   <p>
     <a href="{% url 'checkout:address' %}">← Změnit adresu</a>
   </p>
