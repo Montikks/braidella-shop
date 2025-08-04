@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Košík – Braidella{% endblock %}
+{% block content %}
+  <h2>Košík</h2>
+
+  {% if items %}
+    <table border="0" cellpadding="6" cellspacing="0" style="border-collapse: collapse; min-width: 360px;">
+      <thead>
+        <tr>
+          <th align="left">Produkt</th>
+          <th align="left">Varianta</th>
+          <th align="right">Ks</th>
+          <th align="right">Cena</th>
+          <th align="right">Mezisoučet</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td>{{ item.variant.product.name }}</td>
+            <td>{{ item.variant.color.name }} – {{ item.variant.length_cm }} cm</td>
+            <td align="right">{{ item.qty }}</td>
+            <td align="right">{{ item.price }} Kč</td>
+            <td align="right"><strong>{{ item.subtotal }} Kč</strong></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="margin-top: 8px;"><strong>Celkem: {{ total }} Kč</strong></p>
+    <p><a href="/">Pokračovat v nákupu</a></p>
+  {% else %}
+    <p>Košík je prázdný.</p>
+    <p><a href="/">Pokračovat v nákupu</a></p>
+  {% endif %}
+{% endblock %}

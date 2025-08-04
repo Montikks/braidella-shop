@@ -1,9 +1,74 @@
 {% extends "base.html" %}
 {% block title %}{{ product.name }} – Braidella{% endblock %}
+
 {% block content %}
   <h2>{{ product.name }}</h2>
-  <p>Kategorie: <a href="{% url 'catalog:category' product.category.slug %}">{{ product.category.name }}</a></p>
-  <p>Cena: <strong>{{ product.price }} Kč</strong></p>
-  <p>{{ product.description|linebreaks }}</p>
-  <p><a href="{% url 'catalog:category' product.category.slug %}">← Zpět do kategorie</a></p>
+
+  {% for img in product.images.all|slice:":1" %}
+    <div>
+      <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}"
+           style="max-width: 340px; height: auto; border: 1px solid #eee; border-radius: 6px;">
+    </div>
+  {% empty %}
+    <p><em>Zatím nemáme obrázek produktu.</em></p>
+  {% endfor %}
+
+  <p>
+    Kategorie: <a href="{% url 'catalog:category' product.category.slug %}">{{ product.category.name }}</a>
+  </p>
+
+  <p>
+    Základní cena: <strong>{{ product.price }} Kč</strong>
+    <br><small>(Varianta může mít vlastní cenu.)</small>
+  </p>
+
+  <h3>Varianty</h3>
+  {% if product.variants.all %}
+    <table border="0" cellpadding="6" cellspacing="0" style="border-collapse: collapse; min-width: 320px;">
+      <thead>
+        <tr>
+          <th align="left">Barva</th>
+          <th align="left">Délka</th>
+          <th align="left">Cena</th>
+          <th align="left">Skladem</th>
+          <th align="left">Akce</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in product.variants.all %}
+          <tr>
+            <td>
+              {% if v.color.hex_code %}
+                <span title="{{ v.color.name }}" style="display:inline-block; width:14px; height:14px; border:1px solid #ccc; vertical-align:middle; background: {{ v.color.hex_code }};"></span>
+              {% endif %}
+              {{ v.color.name }}
+            </td>
+            <td>{{ v.length_cm }} cm</td>
+            <td>{% if v.price %}{{ v.price }}{% else %}{{ product.price }}{% endif %} Kč</td>
+            <td>{% if v.active and v.stock > 0 %}Dostupné ({{ v.stock }} ks){% else %}Nedostupné{% endif %}</td>
+            <td>
+              {% if v.active and v.stock > 0 %}
+                <form action="{% url 'cart:add' %}" method="post" style="display:inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="variant_id" value="{{ v.id }}">
+                  <input type="hidden" name="qty" value="1">
+                  <button type="submit">Přidat do košíku</button>
+                </form>
+              {% else %}
+                —
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5">Žádné varianty.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Žádné varianty nejsou k dispozici.</p>
+  {% endif %}
+
+  <p style="margin-top: 12px;">
+    <a href="{% url 'catalog:category' product.category.slug %}">← Zpět do kategorie</a>
+  </p>
 {% endblock %}

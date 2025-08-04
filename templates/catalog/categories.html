@@ -4,7 +4,11 @@
   <h2>Kategorie</h2>
   <ul>
     {% for c in categories %}
-      <li><a href="{% url 'catalog:category' c.slug %}">{{ c.name }}</a></li>
+      {% if c.slug %}
+        <li><a href="{% url 'catalog:category' c.slug %}">{{ c.name }}</a></li>
+      {% else %}
+        <li>{{ c.name }} <em>(chybí slug)</em></li>
+      {% endif %}
     {% empty %}
       <li>Žádné kategorie.</li>
     {% endfor %}

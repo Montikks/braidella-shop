@@ -5,9 +5,7 @@
   <p>{{ category.description }}</p>
   <ul>
     {% for p in products %}
-      <li>
-        <a href="{% url 'catalog:product' p.slug %}">{{ p.name }}</a> — {{ p.price }} Kč
-      </li>
+      <li><a href="{% url 'catalog:product' p.slug %}">{{ p.name }}</a> — {{ p.price }} Kč</li>
     {% empty %}
       <li>V této kategorii zatím nejsou produkty.</li>
     {% endfor %}
