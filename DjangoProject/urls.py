@@ -7,7 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("pages.urls")),
     path("", include(("catalog.urls", "catalog"), namespace="catalog")),
-    path("cart/", include(("cart.urls", "cart"), namespace="cart")),  # ← přidáno
+    path("cart/", include(("cart.urls", "cart"), namespace="cart")),
     path("checkout/", include(("checkout.urls", "checkout"), namespace="checkout")),
 ]
 

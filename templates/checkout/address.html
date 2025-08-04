@@ -2,6 +2,56 @@
 {% block title %}Pokladna – Adresa{% endblock %}
 {% block content %}
   <h2>Pokladna – Adresa</h2>
-  <p>Zde zítra přidáme formulář (CZ adresa + Balíkovna).</p>
-  <p><a href="{% url 'checkout:review' %}">👉 Pokračovat na rekapitulaci</a></p>
+
+  <form method="post" id="addr-form">
+    {% csrf_token %}
+
+    <fieldset>
+      <legend>Kontaktní údaje</legend>
+      {{ form.first_name.label_tag }} {{ form.first_name }} {{ form.first_name.errors }}<br>
+      {{ form.last_name.label_tag }} {{ form.last_name }} {{ form.last_name.errors }}<br>
+      {{ form.email.label_tag }} {{ form.email }} {{ form.email.errors }}<br>
+      {{ form.phone.label_tag }} {{ form.phone }} {{ form.phone.errors }}
+    </fieldset>
+
+    <fieldset style="margin-top:12px">
+      <legend>Způsob doručení</legend>
+      {{ form.delivery_method }} {{ form.delivery_method.errors }}
+    </fieldset>
+
+    <div id="section-address" style="margin-top:12px">
+      <fieldset>
+        <legend>Doručení na adresu</legend>
+        {{ form.street.label_tag }} {{ form.street }} {{ form.street.errors }}<br>
+        {{ form.city.label_tag }} {{ form.city }} {{ form.city.errors }}<br>
+        {{ form.zip_code.label_tag }} {{ form.zip_code }} {{ form.zip_code.errors }}
+      </fieldset>
+    </div>
+
+    <div id="section-balikovna" style="margin-top:12px; display:none">
+      <fieldset>
+        <legend>Balíkovna</legend>
+        <p>{{ form.balikovna_id.label_tag }} {{ form.balikovna_id }} {{ form.balikovna_id.errors }}</p>
+        <p><small>V dalším kroku přidáme mapu pro výběr výdejního místa.</small></p>
+      </fieldset>
+    </div>
+
+    <p style="margin-top:12px">
+      <button type="submit">Pokračovat na rekapitulaci →</button>
+      <a href="{% url 'cart:detail' %}" style="margin-left:8px">← Zpět do košíku</a>
+    </p>
+  </form>
+
+  <script>
+    function toggleSections() {
+      var method = document.querySelector('input[name="delivery_method"]:checked')?.value;
+      var addr = document.getElementById('section-address');
+      var bal = document.getElementById('section-balikovna');
+      if (method === 'balikovna') { addr.style.display = 'none'; bal.style.display = ''; }
+      else { addr.style.display = ''; bal.style.display = 'none'; }
+    }
+    document.querySelectorAll('input[name="delivery_method"]').forEach(function(r){ r.addEventListener('change', toggleSections); });
+    // inicializace po načtení:
+    toggleSections();
+  </script>
 {% endblock %}
