@@ -1,12 +1,12 @@
 import gopay
 from django.conf import settings
 
-# Bezpečný fallback – pro každý SDK
+# Fallback na nové/ staré SDK – novější vyžaduje text "payment-all"
 try:
     from gopay.enums import Scope
-    SCOPE_ALL = Scope.ALL          # starší SDK
-except (ImportError, AttributeError):
-    SCOPE_ALL = "payment-all"      # novější SDK
+    SCOPE_ALL = getattr(Scope, "ALL", "payment-all")
+except Exception:
+    SCOPE_ALL = "payment-all"
 
 def gopay_client():
     return gopay.payments(

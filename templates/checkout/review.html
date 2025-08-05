@@ -49,16 +49,11 @@
   {% endif %}
 
   <!-- ✦✦ GoPay tlačítko ✦✦ -->
-  <form action="{% url 'payments:create' order.id %}" method="post" style="margin: 12px 0;">
-    {% csrf_token %}
-    <button type="submit"><strong>Zaplatit kartou (GoPay)</strong></button>
-  </form>
+  <form action="{% url 'payments:start' %}" method="post" style="margin: 12px 0;">
+  {% csrf_token %}
+  <button type="submit"><strong>Zaplatit kartou (GoPay)</strong></button>
+</form>
 
-  <!-- Původní offline odeslání jako záloha -->
-  <form method="post" action="{% url 'checkout:place' %}" style="margin: 12px 0;">
-    {% csrf_token %}
-    <button type="submit"><strong>Odeslat objednávku</strong></button>
-  </form>
 
   <p><a href="{% url 'checkout:address' %}">← Změnit adresu</a></p>
 {% endblock %}
